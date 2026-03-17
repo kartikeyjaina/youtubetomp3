@@ -7,12 +7,14 @@ ffmpeg.setFfmpegPath(ffmpegStatic);
 
 // 👇 IMPORTANT
 const ytDlpPath = path.join(__dirname, "../../yt-dlp");
-
+const cookiesPath = path.join(__dirname, "../../cookies.txt");
 // ✅ GET VIDEO INFO
 exports.getInfo = (url) => {
   return new Promise((resolve, reject) => {
     const process = spawn(ytDlpPath, [
       "--dump-json",
+      "--cookies",
+      cookiesPath,
       "--js-runtimes",
       "node",
       url,
@@ -47,16 +49,18 @@ exports.getInfo = (url) => {
 
 // ✅ STREAM MP3
 exports.streamMp3 = (url, res) => {
- const process = spawn(ytDlpPath, [
+  const process = spawn(ytDlpPath, [
   "-f",
   "bestaudio",
   "-o",
   "-",
+  "--cookies",
+  cookiesPath,
+  "--no-playlist",
   "--js-runtimes",
   "node",
   url,
 ]);
-
   process.stderr.on("data", (data) => {
     console.error("yt-dlp stderr:", data.toString());
   });
