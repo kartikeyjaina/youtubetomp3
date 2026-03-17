@@ -1,18 +1,26 @@
 const { spawn } = require("child_process");
+const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
 const ffmpegStatic = require("ffmpeg-static");
 
 ffmpeg.setFfmpegPath(ffmpegStatic);
 
+// 👇 IMPORTANT
+const ytDlpPath = path.join(__dirname, "../../yt-dlp");
+
 // ✅ GET VIDEO INFO
 exports.getInfo = (url) => {
   return new Promise((resolve, reject) => {
-    const process = spawn("yt-dlp", ["--dump-json", url]);
+    const process = spawn(ytDlpPath, ["--dump-json", url]);
 
     let data = "";
 
     process.stdout.on("data", (chunk) => {
       data += chunk;
+    });
+
+    process.stderr.on("data", (data) => {
+      console.error("yt-dlp stderr:", data.toString());
     });
 
     process.on("close", (code) => {
@@ -34,7 +42,11 @@ exports.getInfo = (url) => {
 
 // ✅ STREAM MP3
 exports.streamMp3 = (url, res) => {
-  const process = spawn("yt-dlp", ["-f", "bestaudio", "-o", "-", url]);
+  const process = spawn(ytDlpPath, ["-f", "bestaudio", "-o", "-", url]);
+
+  process.stderr.on("data", (data) => {
+    console.error("yt-dlp stderr:", data.toString());
+  });
 
   process.on("error", (err) => {
     console.error("yt-dlp error:", err);
