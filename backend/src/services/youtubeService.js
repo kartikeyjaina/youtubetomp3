@@ -11,7 +11,12 @@ const ytDlpPath = path.join(__dirname, "../../yt-dlp");
 // ✅ GET VIDEO INFO
 exports.getInfo = (url) => {
   return new Promise((resolve, reject) => {
-    const process = spawn(ytDlpPath, ["--dump-json", url]);
+    const process = spawn(ytDlpPath, [
+      "--dump-json",
+      "--js-runtimes",
+      "node",
+      url,
+    ]);
 
     let data = "";
 
@@ -42,7 +47,15 @@ exports.getInfo = (url) => {
 
 // ✅ STREAM MP3
 exports.streamMp3 = (url, res) => {
-  const process = spawn(ytDlpPath, ["-f", "bestaudio", "-o", "-", url]);
+ const process = spawn(ytDlpPath, [
+  "-f",
+  "bestaudio",
+  "-o",
+  "-",
+  "--js-runtimes",
+  "node",
+  url,
+]);
 
   process.stderr.on("data", (data) => {
     console.error("yt-dlp stderr:", data.toString());
